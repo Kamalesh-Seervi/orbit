@@ -4,7 +4,7 @@ import { Eye, Loader2 } from 'lucide-react';
 import { useStore } from '../state/store';
 import { VideoView } from './VideoView';
 import { ControlBar } from './ControlBar';
-import { ChatPanel } from './ChatPanel';
+import { LiveChatMessages, ChatComposer } from './LiveChat';
 import { Captions } from './Captions';
 import { EmojiLayer } from './EmojiLayer';
 import { DistanceBadge } from './DistanceBadge';
@@ -18,6 +18,7 @@ export function CallScreen() {
   const phase = useStore((s) => s.phase);
   const localStream = useStore((s) => s.localStream);
   const remoteStream = useStore((s) => s.remoteStream);
+  const chatOpen = useStore((s) => s.chatOpen);
   const connecting = phase === 'connecting';
 
   return (
@@ -28,30 +29,38 @@ export function CallScreen() {
       <EmojiLayer />
       <Captions />
 
-      {/* Top overlay: partner info + icebreaker */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col items-center gap-2 p-4">
-        <div className="pointer-events-auto flex w-full items-start justify-center">
-          <IcebreakerToast />
-        </div>
-        <div className="pointer-events-auto absolute left-4 top-4">
+      {/* Top overlay: partner info stacked above the icebreaker (no overlap) */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col gap-2 p-3">
+        <div className="pointer-events-auto self-start">
           <DistanceBadge />
         </div>
+        <div className="pointer-events-auto flex justify-center">
+          <IcebreakerToast />
+        </div>
       </div>
 
-      {/* Local self-view */}
-      <div className="absolute bottom-24 right-4 z-10 h-40 w-28 overflow-hidden rounded-2xl border border-white/15 bg-black/50 shadow-xl sm:h-48 sm:w-36">
-        <VideoView stream={localStream} muted mirror className="h-full w-full object-cover" />
-        <span className="absolute bottom-1 left-2 text-[10px] font-medium text-white/70">
-          You
-        </span>
+      {/* Bottom overlay: live chat + self-view sit above the controls/composer,
+          in a flex column so nothing ever overlaps regardless of height. */}
+      <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col gap-3 p-3 pb-4">
+        <div className="pointer-events-none flex items-end justify-between gap-3">
+          <LiveChatMessages />
+          <div className="relative h-32 w-24 shrink-0 overflow-hidden rounded-2xl border border-white/15 bg-black/50 shadow-xl sm:h-40 sm:w-28">
+            <VideoView stream={localStream} muted mirror className="h-full w-full object-cover" />
+            <span className="absolute bottom-1 left-2 text-[10px] font-medium text-white/70">
+              You
+            </span>
+          </div>
+        </div>
+
+        {chatOpen ? (
+          <ChatComposer />
+        ) : (
+          <div className="pointer-events-none flex justify-center">
+            <ControlBar />
+          </div>
+        )}
       </div>
 
-      {/* Bottom control bar */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center p-4 pb-5">
-        <ControlBar />
-      </div>
-
-      <ChatPanel />
       <ReconnectDialog />
     </div>
   );
