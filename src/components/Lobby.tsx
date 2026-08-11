@@ -104,8 +104,8 @@ export function Lobby() {
   };
 
   return (
-    <div className="mx-auto flex h-full max-w-6xl flex-col px-4 py-6 sm:px-6">
-      <header className="mb-6 flex items-center justify-between">
+    <div className="mx-auto flex h-full max-w-6xl flex-col overflow-y-auto px-4 py-5 pb-8 scroll-thin sm:px-6 sm:py-6">
+      <header className="mb-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-brand to-brand-2 shadow-lg shadow-brand/30">
             <Sparkles size={18} />
@@ -121,9 +121,9 @@ export function Lobby() {
         </div>
       </header>
 
-      <div className="grid flex-1 gap-6 lg:grid-cols-2">
+      <div className="grid gap-5 lg:flex-1 lg:grid-cols-2">
         {/* Preview */}
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-black/40">
+        <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-3xl border border-white/10 bg-black/40 lg:aspect-auto lg:h-full">
           <VideoView
             stream={localStream}
             muted
@@ -185,7 +185,7 @@ export function Lobby() {
         </div>
 
         {/* Form */}
-        <div className="glass flex flex-col gap-5 rounded-3xl p-6">
+        <div className="glass flex flex-col gap-4 rounded-3xl p-5 sm:p-6">
           <Field label="Display name (optional)">
             <input
               value={prefs.displayName}
