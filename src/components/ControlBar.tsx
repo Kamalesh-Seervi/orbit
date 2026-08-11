@@ -45,7 +45,7 @@ export function ControlBar() {
   const toggle = (p: Popover) => setPop((cur) => (cur === p ? null : p));
 
   return (
-    <div className="pointer-events-auto relative flex items-center justify-center gap-2 sm:gap-3">
+    <div className="pointer-events-auto relative flex max-w-full flex-wrap items-center justify-center gap-2 sm:gap-3">
       <AnimatePresence>
         {pop === 'emoji' && (
           <Tray>
