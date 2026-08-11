@@ -1,0 +1,38 @@
+rules_version = '2';
+
+// Orbit — serverless matchmaking + WebRTC signaling.
+//
+// Design notes:
+//  * Every visitor is signed in anonymously, so `request.auth != null` blocks
+//    unauthenticated abuse without any user-facing login.
+//  * Matchmaking works by one user atomically "claiming" another user's queue
+//    document, so signed-in users must be able to update queue docs they don't
+//    own. That is the intentional trade-off that makes serverless matching work.
+//  * No personal data is stored. Queue/room/reconnect docs are transient and
+//    are also auto-removed by a TTL policy on their `expireAt` field (configure
+//    the TTL policy in the Firebase console — see firestore.indexes / README).
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Waiting pool. Doc id == the waiting user's uid.
+    match /queue/{uid} {
+      allow read, create, update, delete: if signedIn();
+    }
+
+    // Signaling rooms + ICE candidate subcollections.
+    match /rooms/{roomId} {
+      allow read, create, update, delete: if signedIn();
+      match /{sub}/{candidateId} {
+        allow read, create, update, delete: if signedIn();
+      }
+    }
+
+    // Short-lived reconnect codes for the "reconnect token" feature.
+    match /reconnect/{code} {
+      allow read, create, update, delete: if signedIn();
+    }
+  }
+}
